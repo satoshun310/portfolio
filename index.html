@@ -1,0 +1,472 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta name="robots" content="noindex,nofollow">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="format-detection" content="telephone=no">
+<title>Shunsuke Sato ポートフォリオ</title>
+
+<!-- 外部ドメインとの接続を事前に確立して読み込みを高速化 -->
+<link rel="preconnect" href="https://use.typekit.net" crossorigin>
+<!-- Adobe FontsのCSS読み込み -->
+<!--link rel="stylesheet" href="https://use.typekit.net/ylb8ndz.css"-->
+<script>
+	(function(d) {
+		var config = {
+			kitId: 'ylb8ndz',
+			scriptTimeout: 3000,
+			async: true
+		},
+		h=d.documentElement,t=setTimeout(function(){h.className=h.className.replace(/\bwf-loading\b/g,"")+" wf-inactive";},config.scriptTimeout),tk=d.createElement("script"),f=false,s=d.getElementsByTagName("script")[0],a;h.className+=" wf-loading";tk.src='https://use.typekit.net/'+config.kitId+'.js';tk.async=true;tk.onload=tk.onreadystatechange=function(){a=this.readyState;if(f||a&&a!="complete"&&a!="loaded")return;f=true;clearTimeout(t);try{Typekit.load(config)}catch(e){}};s.parentNode.insertBefore(tk,s)
+	})(document);
+</script>
+
+<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<link href="./style.css" rel="stylesheet" />
+
+<!--link rel="shortcut icon" href="./favicon.ico" type="image/vnd.microsoft.icon"-->
+<!--link rel="icon" href="./favicon.ico" type="image/vnd.microsoft.icon"-->
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+	const loader = document.getElementById('loader');
+	// プログレスバーのアニメーションを開始
+	if (loader) {
+		loader.classList.add('is-loading');
+	}
+
+	// フォント読み込み完了を待機
+	const fontPromise = document.fonts ? document.fonts.ready : Promise.resolve();
+	// 演出用に最低でも500ms待つタイマー
+	const minTimer = new Promise(resolve => setTimeout(resolve, 500));
+
+	Promise.all([fontPromise, minTimer]).then(() => {
+		// ローディング画面をフェードアウト
+		if(loader) {
+			loader.classList.add('is-loaded');
+		}
+
+		// ローディングが完全に消えたタイミング（500ms後）で各アニメーション監視を開始
+		setTimeout(() => {
+			initScrollAnimations();
+		}, 500);
+	});
+});
+
+// 各アニメーション。監視処理をまとめた関数
+function initScrollAnimations() {
+	// サブタイトル切り替え
+	const subtitleElement = document.getElementById('current-subtitle');
+	const workItems = document.querySelectorAll('.work-item');
+
+	if (subtitleElement && workItems.length > 0) {
+		const subtitleObserver = new IntersectionObserver((entries) => {
+			entries.forEach(entry => {
+				if (entry.isIntersecting) {
+					const newSubtitle = entry.target.dataset.subtitle;
+					if (newSubtitle) {
+						subtitleElement.style.opacity = '0';
+						setTimeout(() => {
+							subtitleElement.textContent = newSubtitle;
+							subtitleElement.style.opacity = '1';
+						}, 200);
+					}
+				}
+			});
+		}, {
+			rootMargin: '-30% 0px -30% 0px',
+			threshold: 0
+		});
+
+		workItems.forEach(item => subtitleObserver.observe(item));
+	}
+
+	// 画像のフェードイン＆微回転
+	const revealImages = document.querySelectorAll('.js-reveal-img');
+	if(revealImages.length > 0) {
+		const imgObserver = new IntersectionObserver((entries, observer) => {
+			entries.forEach(entry => {
+				if (entry.isIntersecting) {
+					// 画面内に入ったらクラスを付与
+					entry.target.classList.add('is-visible');
+
+					// 一度表示されたら監視を解除（1回だけアニメーションさせる場合）
+					observer.unobserve(entry.target);
+				}
+			});
+		}, {
+			rootMargin: '0px 0px -10% 0px', // 画面下部から10%入ったところで発火
+			threshold: 0.1
+		});
+
+		revealImages.forEach(img => imgObserver.observe(img));
+	}
+
+	// 見出しテキストのマスクアニメーション監視
+	const revealTexts = document.querySelectorAll('.js-reveal-text');
+	if(revealTexts.length > 0) {
+		const textObserver = new IntersectionObserver((entries, observer) => {
+			entries.forEach(entry => {
+				if (entry.isIntersecting) {
+					entry.target.classList.add('is-visible');
+					observer.unobserve(entry.target);	//一回だけ実行して監視終了
+				}
+			});
+		}, {
+			rootMargin: '0px 0px -10% 0px',	//画面下部から10%入ったら発火
+			threshold:0
+		});
+		revealTexts.forEach(text => textObserver.observe(text));
+	}
+
+	// ヘッダーのスクロール連動
+	const header = document.getElementById('header');
+	const fv = document.getElementById('fv');
+
+	if(header && fv){
+		const headerObserver = new IntersectionObserver((entries) => {
+			entries.forEach(entry => {
+				// ファーストビューが画面上部に少しでも入っていればクラスを外す
+				// 画面上部から完全に見切れたらクラスを付与する
+				if(entry.isIntersecting){
+					header.classList.remove('is-scrolled');
+				} else {
+					header.classList.add('is-scrolled');
+				}
+			});
+		}, {
+			// ヘッダーの高さ分だけ手前で切り替えたい場合のオフセット
+			rootMargin:'-80px 0px 0px 0px',
+			threshold:0
+		});
+		headerObserver.observe(fv);
+	}
+
+	// ページ内アンカーリンクのスムーススクロール
+	const smoothScrollLinks = document.querySelectorAll('a[href^="#"]');
+
+	smoothScrollLinks.forEach(link => {
+		link.addEventListener('click', (e) => {
+			const href = link.getAttribute('href');
+			if (!href) return;
+
+			// デフォルトのジャンプ挙動をキャンセル
+			e.preventDefault();
+
+			// 単なる＃や空リンクは除外
+			if (href === '#top' || href === '#'){
+				window.scrollTo({
+					top: 0,
+					behavior: 'smooth'
+				});
+				return;
+			}
+
+			const targetElement = document.querySelector(href);
+			if (!targetElement) return;
+
+			// ヘッダー要素を取得
+			const header = document.getElementById('header');
+
+			// スクロール後にヘッダーが縮む場合、最終的なヘッダー高さを正確に取得する
+			const headerHeight = header ? header.getBoundingClientRect().height : 0;
+
+			// 現在のスクロール位置を考慮した絶対座標
+			const elementPosition = targetElement.getBoundingClientRect().top;
+			const offsetPosition = elementPosition + window.pageYOffset - headerHeight;
+
+			// スムーススクロールを実行
+			window.scrollTo({
+				top:offsetPosition,
+				behavior: 'smooth'
+			});
+		});
+	});
+}
+</script>
+</head>
+<body>
+<!-- ローディング画面 -->
+<div id="loader" class="loader">
+	<div class="loader-bar-track">
+		<div class="loader-bar"></div>
+	</div>
+</div>
+
+<header id="header">
+	<h1><a href="#top" class="en">Shunsuke&nbsp;Sato</a></h1>
+	<nav>
+		<ul>
+			<li><a href="#top" class="en">Top</a></li>
+			<li><a href="#anc01" class="en">About</a></li>
+			<li><a href="#anc02" class="en">Works</a></li>
+		</ul>
+	</nav>
+	<div id="burger">
+		<div class="x1"></div>
+		<div class="x2"></div>
+		<div class="x3"></div>
+	<div>
+</header>
+
+<main>
+	<div id="fv" class="container top">
+		<div class="inner">
+			<p class="headline en js-reveal-text"><span>Portfolio</span></p>
+		</div>
+	</div>
+
+	<a id="anc01" name="anc01"></a>
+
+	<div class="container about">
+		<div class="inner">
+			<div class="wrap">
+				<div class="sub">
+					<div class="sub-inner">
+						<h2 class="en js-reveal-text"><span>About</span></h2>
+					</div>
+				</div>
+				<div class="main">
+					<section class="abstruct">
+						<h3 class="en">Profile</h3>
+						<p class="name">佐藤 俊介<span class="en">Shunsuke Sato</span></p>
+						<p class="about-subtitle">デザインからシステム構築まで、<br />課題解決を軸としたWeb制作を行います。</p>
+						<p class="about-text">1983年生まれ、神奈川県出身、東京在住。<br />
+						初期キャリアでの医療機器研究開発を経て、2013年より株式会社デンマートにてWebデザイナー兼コーダーとして従事。<br />
+						自社およびグループ会社のECサイト構築・運用、グラフィックデザイン、フロント/バックエンド実装に幅広く携わってまいりました。<br />
+						単なる制作にとどまらず、自社ブランドの立ち上げや、PHPを活用した社内ツールの自作開発による大幅なコスト削減、<br />
+						システム会社との折衝など、業務課題の解決に向けたアプローチを得意としています。<br />
+						医療分野で培った厳密な分析・検証力と、Web/EC領域における一貫対応力を活かし、事業成長に貢献いたします。</p>
+					</section>
+
+					<section class="skill">
+						<h3 class="en">Skill</h3>
+						<h4>デザイン・制作</h4>
+						<ul class="half">
+							<li>Adobe Photoshop<span>13年</span></li>
+							<li>Adobe Illustrator<span>13年</span></li>
+						</ul>
+
+						<h4>フロントエンド・バックエンド</h4>
+						<ul class="half">
+							<li>HTML, CSS, javascript</li>
+							<li>PHP</li>
+						</ul>
+
+						<h4>EC・CMS</h4>
+						<ul class="all">
+							<li>Makeshop, 楽天市場, Yahoo!ショッピング, Amazon, カラーミーショップ, WordPress</li>
+						</ul>
+					</section>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<a id="anc02" name="anc02"></a>
+
+	<div class="container works">
+		<div class="inner">
+			<div class="wrap">
+				<div class="sub">
+					<div class="sub-inner">
+						<h2 class="en js-reveal-text"><span>Works</span></h2>
+						<p id="current-subtitle"></p>
+					</div>
+				</div>
+				<div class="main">
+					<section class="work-item" data-subtitle="　"></section>
+
+					<h2 class="hide-wide"><span>EC構築・リニューアル</span></h2>
+
+					<section class="work-item" data-subtitle="EC構築・リニューアル">
+						<!--//ECリニューアル構築-->
+						<div class="content">
+							<h3>激安家電のデンマートECサイト　<br class="sp" />リニューアル構築</h3>
+							<div class="js-reveal-img">
+								<img src="./images/pf_img01.jpg" width="100%" alt="den-mart.comモックアップ" />
+							</div>
+							<dl class="info">
+								<dt>担当範囲</dt>
+								<dd>ヒアリング / デザイン / HTML・CSS・JavaScript実装 / ASPカート（MakeShop等）初期構築・モール設定 / 保守・運用管理</dd>
+							</dl>
+							<dl class="info">
+								<dt>課題・目的</dt>
+								<dd>旧サイトの老朽化への対応と、APIを活用した受注管理システム連携によるバックオフィス業務の効率化を目的としたASPカートへの移行・全面リニューアル。</dd>
+							</dl>
+							<dl class="info end">
+								<dt>実績・成果</dt>
+								<dd>ヒアリングから構築まで一括して担当することで外部委託費を削減し、制作リードタイムを短縮。構築後も受注処理等の業務負荷を軽減させるとともに、社内ニーズに応じた迅速な機能改善や企画ページの更新・保守管理を継続し、売上拡大に貢献。</dd>
+							</dl>
+						</div>
+
+						<div class="content">
+							<h3>エアコン専門店エアコンランド　<br class="sp" />リニューアル構築</h3>
+							<div class="js-reveal-img">
+								<img src="./images/pf_img02.jpg" width="100%" alt="エアコンランドモックアップ" />
+							</div>
+							<dl class="info">
+								<dt>担当範囲</dt>
+								<dd>クライアントヒアリング / サイトデザイン提案 / WordPress導入・構築（HTML・CSS・JS・PHP実装） / 運用保守・機能改修</dd>
+							</dl>
+							<dl class="info">
+								<dt>課題・目的</dt>
+								<dd>お問い合わせ数および売上規模の拡大に向けたサイトデザインの全面刷新。SEO対策やWeb広告運用（検索広告）を強化するため、柔軟な商品掲載機能や施工実績などのブログ機能を備えた拡張性の高いWeb基盤の構築。</dd>
+							</dl>
+							<dl class="info end">
+								<dt>実績・成果</dt>
+								<dd>拡張性と更新性を重視したWordPressでの構築を提案し、デザインから実装・保守まで一括対応。戦略的なコンテンツ運用とUI改善によりコンバージョン（CV）数を大幅に向上させ、売上拡大および実店舗の多店舗展開（店舗数拡大）に直接貢献。</dd>
+							</dl>
+						</div>
+					</section>
+
+					<h2 class="hide-wide"><span>ブランド・グラフィック</span></h2>
+
+					<section class="work-item" data-subtitle="ブランド・グラフィック">
+						<!--//PlusQ ブランディング-->
+						<div class="content">
+							<h3>ワインセラーブランドPlusQ　<br class="sp" />ブランディング制作</h3>
+							<div class="js-reveal-img">
+								<img src="./images/pf_img03.jpg" width="100%" alt="PlusQブランドイメージ" />
+							</div>
+							<dl class="info">
+								<dt>担当範囲</dt>
+								<dd>ブランドロゴ・ボタンデザイン / 取扱説明書・外装箱デザイン / 撮影ディレクション（海外工場連携含む） / 公式サイト構築 / 各種ECモール出品 登録</dd>
+							</dl>
+							<dl class="info">
+								<dt>課題・目的</dt>
+								<dd>自社プライベートブランド（ワインセラー）の新規立ち上げに伴い、製品コンセプトの可視化から販促物・EC販売基盤の構築まで、一貫したブランド世界観の創出と販売体制の確立。</dd>
+							</dl>
+							<dl class="info end">
+								<dt>実績・成果</dt>
+								<dd>デザイン・Webにとどまらず、製造過程での中国工場との折衝や撮影指示、取扱説明書・外装箱の制作までトータルで手掛け、ゼロからのブランド立ち上げとスムーズな販売実現に貢献。一貫した品質管理とブランディングにより、その後の新規商品開発や事業の売上拡大を牽引。</dd>
+							</dl>
+
+							<ul class="img_list">
+								<li class="x1">
+									<div class="js-reveal-img">
+										<img src="./images/noimage.jpg" width="100%" alt="画像準備中" />
+									</div>
+									<p>撮影指示書：製品の質感やインテリアへの馴染みやすさを伝えるため、アングルや光の切り方を詳細にディレクション。</p>
+								</li>
+								<li class="x2">
+									<div class="js-reveal-img">
+										<img src="./images/noimage.jpg" width="100%" alt="画像準備中" />
+									</div>
+									<p>取扱説明書・外装箱：刷り直しが許されない印刷データとして、誤字脱字や表現の不備を極限まで排除した精密な入稿データ作成・品質管理を徹底。</p>
+								</li>
+								<li class="x3">
+									<div class="js-reveal-img">
+										<img src="./images/pf_img06.jpg" width="100%" alt="ECモール出品" />
+									</div>
+									<p>ECモール出品：統一したブランドトーンで商品画像・仕様情報を登録し販売を展開。</p>
+								</li>
+								<li class="x4">
+									<div class="js-reveal-img">
+										<img src="./images/pf_img07.jpg" width="100%" alt="新商品（ハイエンドモデル）LP・商品詳細ページ" />
+									</div>
+									<p>新商品（ハイエンドモデル）LP・商品詳細ページ：高価格帯製品の魅力を最大化するビジュアル性の高いLP・ページ制作を担当し、新商品のスムーズな展開とブランド価値向上を実現。</p>
+								</li>
+							</ul>
+						</div>
+					</section>
+
+					<h2 class="hide-wide"><span>技術・課題解決</span></h2>
+
+					<section class="work-item" data-subtitle="技術・課題解決">
+						<!--//自作社内グループウェア＆勤怠管理システム-->
+						<div class="content">
+							<h3>自作社内グループウェア<br class="sp" />＆勤怠管理システム</h3>
+							<div class="js-reveal-img">
+								<img src="./images/pf_img08.jpg" width="100%" alt="社内グループウェア" />
+							</div>
+							<dl class="info">
+								<dt>担当範囲</dt>
+								<dd>課題抽出・企画 / 画面UIデザイン / WordPress構築・各種システム連携（Google Calendar API / Google Spreadsheets API等） / 運用保守</dd>
+							</dl>
+							<dl class="info">
+								<dt>課題・目的</dt>
+								<dd>従来利用していたグループウェアの有料化に伴い、ツール移行にかかる月額固定コストの削減および、自社の業務フローに特化した軽量でシンプルな情報共有・業務管理環境の自社構築。</dd>
+							</dl>
+							<dl class="info end">
+								<dt>実績・成果</dt>
+								<dd>WordPressを基盤に、Googleカレンダーをカスタマイズ組み込みしたスケジュール管理機能やナレッジ共有システム、スプレッドシート連携による自作打刻システムを一から開発。外部ツール依存を脱却して月額コストの完全削減に貢献するとともに、自社特有の使いやすさを追求した社内インフラとして定着。</dd>
+							</dl>
+						</div>
+
+						<div class="content">
+							<h3>EC用ノーコードツール開発</h3>
+							<div class="js-reveal-img">
+								<img src="./images/pf_img09.jpg" width="100%" alt="EC用ノーコードツール開発" />
+							</div>
+							<dl class="info">
+								<dt>担当範囲</dt>
+								<dd>現場課題のヒアリング・企画 / ツールUI/UXデザイン / HTML生成ロジック・画像処理プログラム開発 / 運用保守</dd>
+							</dl>
+							<dl class="info">
+								<dt>課題・目的</dt>
+								<dd>ECモールでの差別化に向けた高品質な商品ページの量産。専門知識（HTML/CSS）を持たない店舗担当者でも、各モールの記述制限や仕様に準拠した洗練された商品説説文（デザイン枠）を直感的に作成できる仕組みの構築。</dd>
+							</dl>
+							<dl class="info end">
+								<dt>実績・成果</dt>
+								<dd>ノンコーダーでも直感的な操作でモール仕様に沿ったHTMLコードや画像配置を生成できるノーコード風ツールを自作。商品登録の作業ハードルと作成工数を大幅に削減し、店舗全体の出品クオリティ向上と商品ページの拡充による売上拡大に貢献。</dd>
+							</dl>
+						</div>
+					</section>
+
+					<h2 class="hide-wide"><span>単体制作物</span></h2>
+
+					<section class="work-item" data-subtitle="単体制作物">
+						<!--//単体制作物-->
+						<div class="content">
+							<h3>ポップコーン専門店　<br class="sp" />店頭販促ポスター</h3>
+							<div class="js-reveal-img">
+								<img src="./images/pf_img10.jpg" width="100%" alt="ポップコーン専門店　店頭販促ポスター" />
+							</div>
+							<dl class="info">
+								<dt>担当範囲</dt>
+								<dd>クライアントヒアリング / デザイン制作 / 印刷・発注管理</dd>
+							</dl>
+							<dl class="info">
+								<dt>課題・目的</dt>
+								<dd>ウェブ専属担当として、実店舗の集客向上とブランド体験の統一を目的に制作。視認性の高いビジュアルによる通行人の立ち止め率向上と、商品訴求によるトライアル購入の促進。さらにウェブ施策と連動した定期的ビジュアル更新による、一貫した世界観の醸成と「活気ある店舗」としての印象定着。</dd>
+							</dl>
+							<dl class="info end">
+								<dt>実績・成果</dt>
+								<dd>アイキャッチ効果の高いビジュアル構成により、通行人の立ち止め率および店舗への立ち寄り率が向上。イベントや限定商品の魅力を直感的に伝える情報整理により、入店ハードルの緩和と売上拡大に貢献。またWeb施策と連動した定期更新の継続により、ブランドへの信頼感向上とリピート来店の定着を実現。</dd>
+							</dl>
+						</div>
+
+						<div class="content">
+							<h3>バースデーグラフィック<br class="sp" />ポスター</h3>
+							<div class="js-reveal-img">
+								<img src="./images/pf_img11.jpg" width="100%" alt="バースデーグラフィックポスター" />
+							</div>
+							<dl class="info">
+								<dt>担当範囲</dt>
+								<dd>企画・構成 / デザイン制作（Illustrator） / 入稿データ作成 / 印刷・発注管理（ネット印刷選定）</dd>
+							</dl>
+							<dl class="info">
+								<dt>課題・目的</dt>
+								<dd>ウェブ中心の業務環境下におけるDTPスキルの維持と、表現力の幅を広げる目的で制作。実務での印刷案件減少に伴う技術低下の防止に加え、ゼロベースからのグラフィックデザイン模索、生成AIを活用した素材作成の実践、さらに正確な入稿データの作成・維持を図る。</dd>
+							</dl>
+							<dl class="info end">
+								<dt>実績・成果</dt>
+								<dd>年次制作を通じ、AIイラスト生成からDTPデータ作成まで一貫したデザイン工程を実践。印刷出力時における著作権・肖像権等の権利関係への留意や、安価で迅速な印刷サービスの検証など、実務に即した知見を獲得。家族・親族への寄贈で好評を得ると同時に、DTP・印刷全般におけるトラブル回避ノウハウの確立を実現。</dd>
+							</dl>
+						</div>
+					</section>
+				</div>
+			</div>
+		</div>
+	</div>
+</main>
+
+<footer>
+	<div class="wrap">
+		<p class="name en js-reveal-text"><span>Shunsuke Sato</span></p>
+		<p class="copy en">&copy;2026 Shunsuke Sato All rights reserved.</p>
+		<p class="mail en">satoshun310@gmail.com</p>
+	</div>
+</footer>
+</body>
