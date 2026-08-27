@@ -6,6 +6,27 @@
 <meta name="format-detection" content="telephone=no">
 <title>Shunsuke Sato ポートフォリオ</title>
 
+<!--パスワード保護-->
+<script>
+	(function(){
+		// パスワードを設定
+		const PASSWORD = "portfolio2026";
+
+		// セッションストレージを使って、一度認証したらブラウザを閉じるまで再入力を不要にする
+    	if (sessionStorage.getItem("authenticated") !== "true") {
+      		let input = prompt("閲覧にはパスワードが必要です:");
+      		if (input === PASSWORD) {
+        		sessionStorage.setItem("authenticated", "true");
+      		} else {
+        		alert("パスワードが違います。");
+        		// 正しくない場合は白紙画面にする（または別のページへ転送）
+        		document.write("<h1>403 Forbidden - アクセス権限がありません</h1>");
+        		window.stop();
+      		}
+    	}
+	})();
+</script>
+
 <!-- 外部ドメインとの接続を事前に確立して読み込みを高速化 -->
 <link rel="preconnect" href="https://use.typekit.net" crossorigin>
 <!-- Adobe FontsのCSS読み込み -->
