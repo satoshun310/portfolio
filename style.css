@@ -478,6 +478,8 @@ footer .wrap .mail {
 		font-size:4.2vw;
 		line-height:1.6;
 	}
+	main .container.works .inner .wrap .main .content .img_list li p {line-height: 1.2;}
+	
 
 	/* --- footer --- */
 	footer .wrap {padding:0 5vw 12vw;}
